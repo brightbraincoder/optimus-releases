@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 688.32 198.40" width="688.32" height="198.40">
+  <g transform="translate(19.2 19.2)">
+    <polygon points="80.00,9.60 140.97,44.80 140.97,115.20 80.00,150.40 19.03,115.20 19.03,44.80" fill="none" stroke="#E5E7EB" stroke-width="16.80" stroke-linejoin="miter"/>
+  <line x1="140.97" y1="115.20" x2="80.00" y2="150.40" stroke="#FFB020" stroke-width="16.80" stroke-linecap="butt"/>
+  <circle cx="80" cy="80" r="34.40" fill="none" stroke="#FFFFFF" stroke-width="12.48"/>
+  </g>
+  <text x="214.40" y="111.74" font-family="'Space Grotesk', 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif" font-weight="500" font-size="112" fill="#FFFFFF" letter-spacing="-1.12">Optimus</text>
+  <text x="214.40" y="157.80" font-family="'Space Grotesk', 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif" font-weight="400" font-size="26.32" fill="#FFB020" letter-spacing="0.53">The Agentic Execution Framework</text>
+</svg>
