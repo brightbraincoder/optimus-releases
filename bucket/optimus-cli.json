@@ -1,17 +1,17 @@
 {
-    "version": "0.317.1",
+    "version": "0.326.2",
     "description": "Optimus — an agentic coding CLI that reads/writes files, runs shell commands, and works on your project autonomously via an LLM.",
     "homepage": "https://github.com/brightbraincoder/optimus-releases",
     "license": "Proprietary",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/brightbraincoder/optimus-releases/releases/download/v0.317.1/optimus-cli-v0.317.1-windows-x64.exe#/optimus.exe",
-            "hash": "sha256:1e99866406ed5314b222495c3bfea389e38df5ead47aeb9ae4aa332b1a369a43",
+            "url": "https://github.com/brightbraincoder/optimus-releases/releases/download/v0.326.2/optimus-cli-v0.326.2-windows-x64.exe#/optimus.exe",
+            "hash": "sha256:26d9edaf51833575db7ff4c95c1e77af30795105df4a026dd76bab8b0360b9db",
             "bin": "optimus.exe"
         },
         "arm64": {
-            "url": "https://github.com/brightbraincoder/optimus-releases/releases/download/v0.317.1/optimus-cli-v0.317.1-windows-arm64.exe#/optimus.exe",
-            "hash": "sha256:f17358bddce5db449c9808d583d8a3d7a9ecf42818f2db0148b1db43c269ad32",
+            "url": "https://github.com/brightbraincoder/optimus-releases/releases/download/v0.326.2/optimus-cli-v0.326.2-windows-arm64.exe#/optimus.exe",
+            "hash": "sha256:0b987c2e2e900c5400fb21894e89380c7ee0a9a6bb0f2efe38b0b81d35e04980",
             "bin": "optimus.exe"
         }
     },
