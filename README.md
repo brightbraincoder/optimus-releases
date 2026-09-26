@@ -22,7 +22,13 @@
 
 ---
 
+> **Product Availability**: **Optimus CLI** (optimus) is the currently released and officially distributed standalone application. The desktop application (**Optimus Desktop**) and web services are currently in active development and will be released in a future update.
+
+---
+
 ## Overview
+
+> **Current Release**: The binary packages distributed here are for **Optimus CLI** (optimus), the terminal-based autonomous coding agent. The desktop application (**Optimus Desktop**) is under active development.
 
 **Optimus** is an autonomous, high-performance terminal AI coding assistant built for professional software developers. It reads codebases, drafts Myers diffs, executes verified file edits, runs tests and shell commands, and orchestrates complex multi-agent workflows directly inside your terminal.
 
