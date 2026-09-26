@@ -6,154 +6,199 @@
 </p>
 
 <p align="center">
-  <strong>An agentic coding CLI that reads, writes, and runs — so you don't have to type the boring parts.</strong>
+  <strong>Autonomous, ultra-fast terminal AI coding assistant designed for professional engineers.</strong>
 </p>
 
 <p align="center">
-  <a href="#install">Install</a> ·
-  <a href="#why-optimus">Why Optimus</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#quick-start">Quick start</a> ·
+  <a href="#overview">Overview</a> ·
+  <a href="#key-features">Key Features</a> ·
+  <a href="#slash-commands">Slash Commands</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#quick-start">Quick Start</a> ·
   <a href="#configuration">Configuration</a> ·
-  <a href="#roadmap">Roadmap</a>
+  <a href="#architecture">Architecture</a> ·
+  <a href="#privacy-security--license">Privacy & License</a>
 </p>
 
 ---
 
-**Optimus** is a terminal-based coding agent: point it at a project, describe what you need in plain language, and it reads files, edits them, runs shell commands, and iterates — on its own, with you in the loop exactly as much as you want to be. It's a pair programmer that lives in your terminal, built by **BrightBrainCoder**.
+## Overview
 
-This repo hosts the **compiled binaries** for every platform. The source is closed — see [Distribution](#distribution) for why, and what that does (and doesn't) mean for you.
+**Optimus** is an autonomous, high-performance terminal AI coding assistant built for professional software developers. It reads codebases, drafts Myers diffs, executes verified file edits, runs tests and shell commands, and orchestrates complex multi-agent workflows directly inside your terminal.
 
-## Why Optimus
+Built on a **100% Local-First Architecture**, Optimus executes everything locally on your workstation. Your source code, file contents, workspace indexes, and session histories remain strictly on your machine. API calls are transmitted directly from your workstation to your configured model provider without intermediary proxies or telemetry servers.
 
-- **You choose the model, not us.** Optimus talks to any Anthropic-compatible or OpenAI-compatible endpoint — Claude, GPT, Grok, a local `llama.cpp`/Ollama/vLLM/LM Studio server, or a gateway like OpenRouter. No vendor lock-in, no forced subscription to one lab.
-- **A real permission model, not an all-or-nothing toggle.** Five modes — `manual`, `acceptEdits`, `plan`, `auto`, `bypassPermissions` — let you dial in exactly how much autonomy the agent has, per project, per session, or per command. `auto` mode has its own small model arbitrate ambiguous calls instead of interrupting you for everything.
-- **Built for long sessions, not demos.** Context is actively managed: prompt caching cuts repeat-request cost, auto-compaction summarizes history before it overflows the model's window, and a live token/context gauge tells you where you stand — instead of silently truncating your conversation or crashing mid-task.
-- **A terminal UI that's actually fast.** The interface is a from-scratch React renderer (no Ink, no dependency on a slower general-purpose TUI library) with a virtualized transcript, incremental diff rendering, and mouse support — smooth scrolling and typing even in a long-running session with heavy tool activity.
-- **You can see and steer what it's doing.** Every tool call, every file edit, every shell command streams live with a real diff preview before it runs (in modes that ask). Nothing happens silently in the background.
-- **Extensible without forking anything.** Skills, tools, and plugins are the framework's actual architecture, not an afterthought — see [Under the hood](#under-the-hood).
+For full details on data handling and confidentiality, see our [Privacy Policy (PRIVACY.md)](https://github.com/brightbraincoder/optimus-releases/blob/main/PRIVACY.md).
 
-## Features
+---
 
-### Agent & safety
+## Key Features
 
-| | |
+### Multi-Agent Swarm Engine
+- **Parallel Subagent Orchestration**: Launch, supervise, and coordinate autonomous subagents concurrently for complex refactoring, parallel testing, and deep workspace exploration.
+- **Dynamic Capacity Control**: Automatic workload distribution and capacity throttling prevent rate-limit exhaustion and context saturation across agent trees.
+
+### Granular Permission Modes
+Control agent autonomy with five granular security tiers, switchable on the fly (`Shift+Tab`):
+- `manual`: Prompt for explicit confirmation before every tool call, file modification, and shell execution.
+- `acceptEdits`: Automatically apply workspace file modifications while requiring confirmation for shell execution and sensitive operations.
+- `plan`: Purely read-only exploration and architecture analysis; outputs an executable plan file before any write reaches disk.
+- `auto`: Autonomous execution with automated heuristic evaluation of risky operations.
+- `bypassPermissions`: Autonomous execution governed strictly by an immutable system denylist.
+
+### Transactional Editing & Myers Diff Engine
+- **Atomic Operations**: File writes and multi-file patches are applied atomically with automated rollback mechanisms to prevent workspace corruption.
+- **Myers Diff O((N+M)D)**: High-performance differential generation ensures minimal, precise line-by-line modifications with live terminal visual previews.
+- **Stale Content Protection**: Edits are automatically rejected if target files were modified externally since the last read.
+
+### High-Performance Terminal Interface (`@o-agent/o-ui`)
+- **Instant Escape Interruption**: Sub-50ms keystroke reactivity instantly halts running agent loops, tool executions, or streaming completions.
+- **Virtualized Rendering**: Handles massive transcripts and hundreds of sequential tool calls with zero UI lag.
+- **Rich Terminal Markdown**: Syntax-highlighted code blocks, tables, ANSI-16 / TrueColor themes, and full mouse support (scrolling, clicking, selection).
+
+### Supervised Background Tasks (`/tasks`)
+- **Process Isolation**: Long-running builds, servers, and test suites run in managed background processes.
+- **Orphan Tree Detection**: Active process tree tracking prevents dangling zombie processes upon session termination.
+- **Interactive Inspection**: Real-time log streaming, status queries, input forwarding, and task termination.
+
+### Universal Multi-Provider Connectivity
+Connect seamlessly to any frontier or self-hosted LLM:
+- **Anthropic**: Claude 3.5 Sonnet, Claude 3.7 Sonnet (with hybrid reasoning), Claude 3 Opus, Claude 3.5 Haiku (API keys and OAuth).
+- **OpenAI**: GPT-4o, GPT-4o-mini, o1, o3-mini.
+- **Google**: Gemini 2.0 Flash, Gemini 2.0 Pro, Gemini 1.5 Pro.
+- **Local & Self-Hosted**: Ollama, vLLM, LM Studio, LocalAI, and any OpenAI- or Anthropic-compatible HTTP endpoint.
+
+---
+
+## Slash Commands
+
+| Command | Description |
 |---|---|
-| **Permission modes** | `manual` (confirm everything) · `acceptEdits` (auto-apply file edits, still confirms shell/sensitive actions) · `plan` (read-only exploration, produces a plan file before anything executes) · `auto` (an LLM arbitrates ambiguous calls) · `bypassPermissions` (denylist only) |
-| **Plan mode** | Explore and design without touching the filesystem; exits into an explicit approval step before any write happens |
-| **Live confirmation prompts** | Diff previews for file edits, full command text for shell calls, before you approve |
-| **Denylist safety net** | Dangerous commands and sensitive config files (`.git`, `.env`, shell rc files…) stay protected even in the most permissive mode |
-| **Interruptible anytime** | Stop a running turn mid-generation or mid-tool-call with a keystroke |
+| `/help` | Display command catalog, keyboard shortcuts, and active configuration summary |
+| `/sessions` | List all saved conversation sessions across projects with metadata |
+| `/resume` | Resume a previous session with full context, transcript, and tool history |
+| `/new` | Initialize a fresh conversation session in the current workspace |
+| `/think` | Configure model reasoning effort (`off`, `low`, `medium`, `high`, `max`) |
+| `/plan` | Enter read-only planning mode to design changes before execution |
+| `/model` | Switch the active LLM provider or model architecture on the fly |
+| `/compact` | Trigger manual context compaction and history summarization |
+| `/tasks` | Manage supervised background tasks, inspect logs, and terminate processes |
+| `/purge` | Purge local session history, cached checkpoints, and workspace state |
+| `/logs` | Open the interactive diagnostic session log (`Ctrl+L`) |
+| `/settings` | Interactively inspect and modify global and project configuration parameters |
+| `/quit` | Safely terminate active processes and exit Optimus |
 
-### Context & performance
+---
 
-| | |
+## Installation
+
+Optimus is distributed as standalone, zero-dependency compiled binaries for Windows, macOS, and Linux on both `x64` and `arm64` architectures.
+
+| Platform / Manager | Installation Command |
 |---|---|
-| **Prompt caching** | Automatic cache breakpoints on supported providers — repeat requests in a session cost a fraction of the first one |
-| **Auto-compaction** | When a conversation approaches the model's context window, history is summarized by the model itself before it overflows — nothing crashes, nothing silently truncates |
-| **Live context gauge** | Real-time token/context usage in the header, sourced from the provider's own usage reporting when available |
-| **Virtualized transcript** | Long sessions with hundreds of tool calls stay smooth — only what's on screen is ever re-rendered |
-| **Reasoning-effort control** | `/think off|low|medium|high|max` — tune how hard the model thinks per task, per session |
+| **Homebrew** (macOS / Linux) | `brew install brightbraincoder/optimus/optimus-cli` |
+| **Scoop** (Windows) | `scoop bucket add optimus https://github.com/brightbraincoder/optimus-releases`<br>`scoop install optimus/optimus-cli` |
+| **Winget** (Windows) | `winget install BrightBrainCoder.OptimusCli`<br>*(Submission PR: [microsoft/winget-pkgs#426342](https://github.com/microsoft/winget-pkgs/pull/426342))* |
+| **AUR** (Arch Linux) | `yay -S optimus-cli-bin` *(or your preferred AUR helper)* |
+| **Direct Binary Download** | Download standalone binaries from [GitHub Releases](https://github.com/brightbraincoder/optimus-releases/releases) |
 
-### Working with your project
-
-| | |
-|---|---|
-| **File tools** | Read, write, and edit files with real diffs — edits are refused if the file changed since it was last read, so the agent never blindly overwrites concurrent changes |
-| **Shell access** | Run arbitrary commands, with OS-level sandboxing (process + network isolation) on platforms that support it |
-| **Search** | Fast grep/glob across the whole project, respecting `.gitignore` |
-| **`@file` / `@directory` mentions** | Type `@` to reference a file or folder — its content is read automatically before your message reaches the model |
-| **Task management** | Built-in persistent task list (`/tasks`), backed by disk, with live updates |
-| **Session resume** | `/resume` picks up any past conversation, complete with its full transcript and context |
-| **Project memory** | Auto-loads `AGENTS.md`/`CLAUDE.md` from your repo for project-specific instructions |
-
-### Interface
-
-| | |
-|---|---|
-| **10+ slash commands** | `/help`, `/sessions`, `/resume`, `/new`, `/think`, `/plan`, `/model`, `/compact`, `/tasks`, `/logs`, `/quit` |
-| **Markdown rendering** | Full terminal markdown with syntax highlighting, tables, and themed colors — for both the agent's output and your own input |
-| **Session log** | `Ctrl+L` opens a live, filterable log of every tool call and model event |
-| **Themeable** | Six built-in palettes, including daltonized and high-contrast ANSI-16 variants |
-| **Mouse support** | Click, scroll, drag-to-select, hyperlinks — a real terminal UI, not a text stream |
-
-## Install
-
-| Method | Command |
-|---|---|
-| **Homebrew** (macOS/Linux) | `brew install brightbraincoder/optimus/optimus-cli` |
-| **Scoop** (Windows) | `scoop bucket add optimus https://github.com/brightbraincoder/optimus-releases` then `scoop install optimus/optimus-cli` |
-| **AUR** (Arch Linux) | `yay -S optimus-cli-bin` (or your AUR helper of choice) |
-| **winget** (Windows) | *coming soon* — [tracking PR](https://github.com/microsoft/winget-pkgs/pulls?q=is%3Apr+OptimusCli) |
-| **Manual** | Download the binary for your platform from [Releases](https://github.com/brightbraincoder/optimus-releases/releases) |
-
-Supported platforms: Windows, Linux, macOS — each on `x64` and `arm64`. Whichever method you use, the installed command is `optimus`.
-
-Every release ships a `checksums.txt` (SHA-256) alongside the binaries — verify before you run anything you didn't build yourself.
-
-## Quick start
+### Binary Integrity Verification
+Every release includes a cryptographic `checksums.txt` file containing SHA-256 hashes. Verify your download:
 
 ```sh
-cd your-project
+# macOS / Linux
+sha256sum -c checksums.txt
+
+# Windows (PowerShell)
+Get-FileHash -Algorithm SHA256 optimus.exe
+```
+
+---
+
+## Quick Start
+
+### 1. Launch Optimus
+Navigate to your project root and start the CLI:
+
+```sh
+cd /path/to/your/project
 optimus
 ```
 
-First launch walks you through a short setup: pick a theme, accept the security notice, connect a provider (OAuth for Claude, or an API key for anything else), and choose a model. After that, just talk to it:
+### 2. Onboarding Setup
+On the first launch, the interactive onboarding wizard will guide you through:
+- Color palette selection (Dark, Light, Daltonized, High-Contrast ANSI-16).
+- Security policy acknowledgment.
+- Provider authentication (OAuth for Claude, or API key for Anthropic, OpenAI, Gemini, Ollama).
+- Default model selection.
+
+### 3. Prompting & Iteration
+Provide instructions in natural language:
 
 ```
-> add input validation to the signup form and write a test for it
+> Analyze src/auth/jwt.ts, add refresh token rotation, and write comprehensive unit tests.
 ```
 
-Optimus reads the relevant files, makes the edit, runs your test suite, and reports back — asking for confirmation on anything sensitive, per your current permission mode (`Shift+Tab` cycles modes at any time).
+Optimus inspects dependencies, plans edits, generates Myers diffs, runs tests, and requests confirmation according to your active permission mode.
 
-Useful commands to know from day one:
+### Useful Daily Shortcuts
+- `Shift+Tab`: Cycle permission mode (`manual` -> `acceptEdits` -> `plan` -> `auto` -> `bypassPermissions`).
+- `Escape`: Instantly halt active generation or tool execution (< 50ms).
+- `Ctrl+L`: Toggle live event and tool call diagnostic logs.
+- `@filename`: Inject file or directory contents directly into prompt context.
 
-- `/plan` — explore and design without any write reaching disk, then approve a plan before it executes.
-- `/think high` — tell it to reason harder on something non-trivial.
-- `/compact` — summarize the conversation now instead of waiting for the automatic threshold.
-- `@src/auth.ts` — pull a file into context without describing it.
-- `/resume` — come back to any past session.
+---
 
 ## Configuration
 
-Settings cascade from three layers, least to most specific:
+Optimus uses a hierarchical configuration cascade:
 
-1. `~/.optimus/config.json` — global defaults (theme, default permission mode, model classes…)
-2. `<project>/.optimus/config.json` — per-project overrides (allow/deny rules, model, sandbox settings…)
-3. Environment variables / CLI flags — highest priority, per invocation
+1. **Global Configuration** (`~/.optimus/config.json`): System-wide defaults including active theme, default permission tier, model aliases, and provider endpoints.
+2. **Project Configuration** (`<project>/.optimus/config.json`): Repository-specific settings, path allow/deny rules, test runner configurations, and project instructions.
+3. **Environment Variables & CLI Flags**: Highest precedence per command invocation (e.g., `OPTIMUS_MODEL`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`).
 
-The config file is self-documenting: every known setting is written out (as `null` when unset) the first time Optimus runs, so you can see everything that's tunable without hunting for docs. Nothing needs to be hand-authored to get started — `/settings` inside the app edits the same file for you.
+### Example Configuration (`config.json`)
 
-## Under the hood
+```json
+{
+  "theme": "dark",
+  "permissionMode": "acceptEdits",
+  "provider": "anthropic",
+  "model": "claude-3-7-sonnet",
+  "reasoningEffort": "medium",
+  "autoCompactThreshold": 0.85,
+  "telemetry": false
+}
+```
 
-Optimus is built on an agentic framework with a genuinely pluggable core:
+You can modify settings directly via the `/settings` slash command inside the CLI without manually editing JSON files.
 
-- **Loop plugins** — permission enforcement, auto-compaction, PII redaction, prompt-injection guarding, audit logging, and more, each hookable before/after any step of the agent loop, or able to insert entirely new steps.
-- **Provider adapters** — any Anthropic-compatible or OpenAI-compatible HTTP endpoint works, including self-hosted ones; nothing assumes a specific vendor.
-- **Skills** — bundles of instructions the agent loads on demand for a given kind of task, without bloating every request's system prompt.
-- **Tools** — file I/O, shell, search, and task management ship built-in; the same framework can register more.
+---
 
-A desktop app (packaging the same agent core) is planned — see [Roadmap](#roadmap).
+## Architecture
 
-## Roadmap
+Optimus is structured around an extensible, modular agentic core:
 
-- [ ] **winget** package — [submission PR open](https://github.com/microsoft/winget-pkgs/pull/426342), pipeline automation blocked on an upstream non-interactive-submission limitation in `wingetcreate` (tracked, not forgotten)
-- [ ] **Desktop app** — the same agentic core, packaged as a native app rather than a terminal CLI
-- [ ] AUR package activation
+- **Pluggable Loop Plugins**: Lifecycle hooks before and after every reasoning cycle for PII redaction, prompt-injection defense, automated compaction, and audit logging.
+- **Provider Abstraction Layer**: Unified protocol for streaming tokens, thinking blocks, tool calls, and prompt caching breakpoints across diverse LLM backends.
+- **Skill Engine**: On-demand procedural knowledge bundles loaded dynamically based on task context without bloating baseline system prompts.
+- **Sandboxed Tool Runtime**: Isolated execution environment for file manipulation, semantic AST search, process supervision, and shell command evaluation.
 
-Found a bug or have a feature request? Open an issue on this repo.
+---
 
-## Distribution
+## Privacy, Security & License
 
-**Optimus-Framework** (the source) stays private — this repo and its sibling [`homebrew-optimus`](https://github.com/brightbraincoder/homebrew-optimus) exist to distribute **compiled binaries and package-manager manifests only**. This doesn't affect what you can do with the CLI itself: it runs entirely on your machine, talks only to the LLM provider you configure, and every release is checksummed so you can verify what you're running.
+### Privacy & Data Ownership
+- **Zero Intermediary Servers**: Optimus communicates directly with your chosen LLM provider API. BrightBrainCoder does not host telemetry relays, proxy proxies, or ingestion backends.
+- **No Remote Telemetry**: Usage metrics, prompts, source code, and credentials are never collected or transmitted.
+- **Comprehensive Policy**: Review the full [PRIVACY.md](https://github.com/brightbraincoder/optimus-releases/blob/main/PRIVACY.md) document for complete details.
 
-## Versioning
+### Security
+- **Denylist Safeguards**: Protected system files (`.git`, `.env`, shell configurations) and destructive commands are blocked across all permission modes.
+- **Local Credential Storage**: Authentication tokens and API keys are stored exclusively on your local workstation.
 
-Optimus follows [SemVer 2.0.0](https://semver.org). The version is computed directly from commit history — every release tag's notes on this repo list exactly what changed since the previous one.
-
-## License
-
-Optimus is proprietary software — © BrightBrainCoder. All rights reserved. Redistribution of the compiled binaries is permitted via the package managers listed above; the source is not licensed for reuse.
+### License
+Optimus is proprietary software. Copyright BrightBrainCoder. All rights reserved. Redistribution of compiled binaries is authorized solely through the official package managers and release channels listed in this repository. Source code is proprietary and not licensed for unauthorized modification, decompilation, or redistribution.
 
 ---
 
